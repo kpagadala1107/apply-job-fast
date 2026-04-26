@@ -20,12 +20,11 @@ const BREADCRUMBS = {
 };
 
 export default function Layout() {
-  const { resume, portals, jobs, tailoredResumes } = useApp();
+  const { resume, jobs, tailoredResumes, searchQuery, searchLocation } = useApp();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const tailoredCount = Object.keys(tailoredResumes).length;
-  const connectedPortals = Object.entries(portals).filter(([, v]) => v).map(([k]) => k);
 
   const breadcrumb = Object.entries(BREADCRUMBS).find(([path]) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
@@ -146,25 +145,27 @@ export default function Layout() {
             </div>
           </div>
 
-          {/* Connected portals */}
-          {connectedPortals.length > 0 && (
+          {/* Last search */}
+          {jobs.length > 0 && searchQuery && (
             <>
               <div style={{ marginTop: 16, marginBottom: 8, padding: '0 8px', color: '#55557A', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
-                PORTALS
+                LAST SEARCH
               </div>
-              {connectedPortals.map((p) => (
-                <div key={p} style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '7px 12px', borderRadius: 7, marginBottom: 4,
-                  background: 'rgba(255,255,255,0.03)',
-                }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 6px #10B981', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.8rem', color: '#9090B8', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p}</span>
-                  <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#55557A', flexShrink: 0 }}>
-                    {jobs.filter((j) => j.portal === p).length} jobs
-                  </span>
+              <div style={{
+                padding: '10px 12px', borderRadius: 9,
+                background: 'rgba(139,92,246,0.06)',
+                border: '1px solid rgba(139,92,246,0.15)',
+              }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 500, color: '#C4B5FD', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {searchQuery}
                 </div>
-              ))}
+                {searchLocation && (
+                  <div style={{ fontSize: '0.68rem', color: '#55557A', marginTop: 2 }}>{searchLocation}</div>
+                )}
+                <div style={{ fontSize: '0.68rem', color: '#55557A', marginTop: 4 }}>
+                  {jobs.length} job{jobs.length !== 1 ? 's' : ''} found
+                </div>
+              </div>
             </>
           )}
         </nav>
@@ -202,9 +203,9 @@ export default function Layout() {
                 Resume ready
               </span>
             )}
-            {connectedPortals.length > 0 && (
+            {jobs.length > 0 && (
               <span className="badge badge-purple hide-mobile">
-                {connectedPortals.length} portal{connectedPortals.length > 1 ? 's' : ''} connected
+                {jobs.length} jobs
               </span>
             )}
             {/* Mobile status dot */}

@@ -358,3 +358,49 @@ select.input { cursor: pointer; }
     padding: 12px;
   }
 }
+
+/* ─── Light theme ─────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #F5F5FC;
+  --bg-2: #EEEEF8;
+  --bg-3: #E4E4F2;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --border: rgba(0,0,0,0.08);
+  --border-accent: rgba(139,92,246,0.35);
+  --text: #1A1A2E;
+  --text-2: #4B4B6B;
+  --text-3: #8A8AAA;
+  --gradient-subtle: linear-gradient(135deg, rgba(139,92,246,0.07) 0%, rgba(59,130,246,0.07) 100%);
+}
+
+[data-theme="light"] body { background: var(--bg); color: var(--text); }
+
+[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(139,92,246,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139,92,246,0.05) 1px, transparent 1px);
+}
+
+[data-theme="light"] .sidebar {
+  background: rgba(255,255,255,0.98);
+  border-right: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 2px 0 24px rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .topbar {
+  background: rgba(245,245,252,0.9);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .badge-gray {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .btn-secondary:hover:not(:disabled) {
+  border-color: rgba(0,0,0,0.14);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--bg-3); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }

@@ -1,8 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Target, Wand2, BarChart3, CheckCircle2, Calendar } from 'lucide-react';
+import { ArrowRight, Sparkles, Target, Wand2, BarChart3, CheckCircle2, Search, MapPin, Calendar, Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ResumeUpload from '../components/ResumeUpload';
-import PortalConnect from '../components/PortalConnect';
 
 const FEATURES = [
   { icon: Target, label: 'Smart Matching', desc: 'AI scores every job against your resume' },
@@ -19,9 +19,36 @@ const DATE_RANGE_OPTIONS = [
 ];
 
 export default function Landing() {
-  const { resume, jobs, dateRange, setDateRange } = useApp();
+  const { resume, jobs, searchJobs, searchQuery, searchLocation, dateRange, loadingJobs, isLive } = useApp();
   const navigate = useNavigate();
+
+  const [query, setQuery] = useState('');
+  const [location, setLocation] = useState('');
+  const [localDateRange, setLocalDateRange] = useState('month');
+
+  // Pre-fill query from resume role when it becomes available
+  useEffect(() => {
+    if (resume?.role && !query) setQuery(resume.role);
+  }, [resume?.role]);
+
+  // Sync local fields from context on mount (if user already searched before)
+  useEffect(() => {
+    if (searchQuery) setQuery(searchQuery);
+    if (searchLocation) setLocation(searchLocation);
+    if (dateRange) setLocalDateRange(dateRange);
+  }, []); // intentionally runs once on mount
+
   const hasJobs = jobs.length > 0;
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    await searchJobs({ query: query.trim(), location: location.trim(), dateRange: localDateRange });
+    navigate('/jobs');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch();
+  };
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto' }}>
@@ -42,7 +69,7 @@ export default function Landing() {
           <span className="gradient-text">10x faster</span>
         </h1>
         <p style={{ color: '#9090B8', fontSize: '1.1rem', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>
-          Upload your resume, connect job portals, and let AI match and tailor your application for every opportunity.
+          Upload your resume, search for jobs, and let AI tailor your application for every opportunity.
         </p>
 
         {hasJobs && (
@@ -94,78 +121,119 @@ export default function Landing() {
 
         <ResumeUpload />
 
-        {resume && (
+        {resume && !resume.parsing && (
           <div className="animate-fade-up" style={{ marginTop: 16 }}>
             <div style={{ background: 'rgba(16,185,129,0.06)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(16,185,129,0.15)' }}>
-              {resume.parsing ? (
-                <div style={{ fontSize: '0.78rem', color: '#9090B8', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.3)', borderTop: '2px solid #10B981', animation: 'spin 0.8s linear infinite' }} />
-                  Extracting skills from resume...
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ fontSize: '0.78rem', color: '#6EE7B7', fontWeight: 600 }}>
+                  ✓ {resume.skills?.length || 0} skills extracted
                 </div>
-              ) : (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div style={{ fontSize: '0.78rem', color: '#6EE7B7', fontWeight: 600 }}>
-                      ✓ {resume.skills?.length || 0} skills extracted
-                    </div>
-                    {resume.role && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: '#9090B8' }}>
-                        Searching as
-                        <span style={{
-                          background: 'rgba(139,92,246,0.15)', color: '#C4B5FD',
-                          border: '1px solid rgba(139,92,246,0.25)',
-                          borderRadius: 6, padding: '1px 8px', fontWeight: 600,
-                        }}>
-                          {resume.role}
-                        </span>
-                      </div>
-                    )}
+                {resume.role && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: '#9090B8' }}>
+                    Detected role:
+                    <span style={{
+                      background: 'rgba(139,92,246,0.15)', color: '#C4B5FD',
+                      border: '1px solid rgba(139,92,246,0.25)',
+                      borderRadius: 6, padding: '1px 8px', fontWeight: 600,
+                    }}>
+                      {resume.role}
+                    </span>
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {(resume.skills?.length ? resume.skills : []).slice(0, 10).map((skill) => (
-                      <span key={skill} className="badge badge-green" style={{ fontSize: '0.7rem' }}>{skill}</span>
-                    ))}
-                    {resume.skills?.length > 10 && (
-                      <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>+{resume.skills.length - 10} more</span>
-                    )}
-                  </div>
-                </>
-              )}
+                )}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {(resume.skills || []).slice(0, 10).map((skill) => (
+                  <span key={skill} className="badge badge-green" style={{ fontSize: '0.7rem' }}>{skill}</span>
+                ))}
+                {resume.skills?.length > 10 && (
+                  <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>+{resume.skills.length - 10} more</span>
+                )}
+              </div>
             </div>
+          </div>
+        )}
+
+        {resume?.parsing && (
+          <div style={{ marginTop: 12, fontSize: '0.78rem', color: '#9090B8', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.3)', borderTop: '2px solid #10B981', animation: 'spin 0.8s linear infinite' }} />
+            Extracting skills from resume...
           </div>
         )}
       </div>
 
-      {/* Job sources card — below the resume upload widget */}
+      {/* Job search form */}
       <div className="card animate-fade-up" style={{ padding: '28px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
-          <div>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 6 }}>
-              Connect Job Sources
-            </h2>
-            <p style={{ color: '#9090B8', fontSize: '0.85rem', lineHeight: 1.6 }}>
-              Connect any source below to pull matching jobs into your feed.
-            </p>
-          </div>
-
-          {/* Date range picker */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <Calendar size={14} color="#55557A" />
-            <span style={{ fontSize: '0.78rem', color: '#9090B8', whiteSpace: 'nowrap' }}>Jobs posted:</span>
-            <select
-              className="input"
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              style={{ width: 140, padding: '6px 10px', fontSize: '0.8rem' }}
-            >
-              {DATE_RANGE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
+        <div style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 6 }}>Find Jobs</h2>
+          <p style={{ color: '#9090B8', fontSize: '0.85rem', lineHeight: 1.6 }}>
+            Edit the search query, set your location and date range, then fetch live job listings.
+            {!isLive && <span style={{ color: '#F59E0B' }}> (Demo mode — add a RapidAPI key for live results)</span>}
+          </p>
         </div>
 
-        <PortalConnect />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Query */}
+          <div style={{ position: 'relative' }}>
+            <Search size={15} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+            <input
+              className="input"
+              placeholder="Job title or keywords, e.g. Senior React Developer"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              style={{ paddingLeft: 38 }}
+            />
+          </div>
+
+          {/* Location + Date range row */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 160, position: 'relative' }}>
+              <MapPin size={14} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <input
+                className="input"
+                placeholder="Location (or leave blank for all)"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onKeyDown={handleKeyDown}
+                style={{ paddingLeft: 34 }}
+              />
+            </div>
+
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <Calendar size={14} color="#55557A" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <select
+                className="input"
+                value={localDateRange}
+                onChange={(e) => setLocalDateRange(e.target.value)}
+                style={{ paddingLeft: 30, width: 148 }}
+              >
+                {DATE_RANGE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Search button */}
+          <button
+            className="btn btn-primary"
+            style={{ justifyContent: 'center', padding: '11px 24px', fontSize: '0.95rem' }}
+            onClick={handleSearch}
+            disabled={!query.trim() || loadingJobs}
+          >
+            {loadingJobs ? (
+              <>
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                Fetching jobs...
+              </>
+            ) : (
+              <>
+                <Search size={16} />
+                {hasJobs ? 'Re-search Jobs' : 'Find Jobs'}
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* How it works */}
@@ -176,9 +244,9 @@ export default function Landing() {
         </div>
         <div className="grid-cols-3">
           {[
-            { step: '01', title: 'Upload Resume', desc: 'Drop your PDF or DOCX. AI parses your skills, experience, and achievements.' },
-            { step: '02', title: 'Match Jobs', desc: 'Connect any job source. AI scores every job against your profile in real time.' },
-            { step: '03', title: 'Apply Tailored', desc: 'Generate a custom resume for each job, preview it, and apply directly.' },
+            { step: '01', title: 'Upload Resume', desc: 'Drop your PDF or DOCX. AI parses your skills, experience, and role.' },
+            { step: '02', title: 'Search Jobs', desc: 'Edit the query, set a date range, and fetch live postings from LinkedIn, Indeed, Glassdoor and more.' },
+            { step: '03', title: 'Apply Tailored', desc: 'Tailor your resume for each job with AI, then apply directly.' },
           ].map(({ step, title, desc }) => (
             <div key={step} style={{
               padding: '24px', borderRadius: 14,
@@ -208,7 +276,7 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* CTA if ready */}
+      {/* CTA if jobs found */}
       {hasJobs && (
         <div className="animate-fade-up" style={{
           marginTop: 40, padding: '28px 32px', borderRadius: 16,
@@ -220,17 +288,14 @@ export default function Landing() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <CheckCircle2 size={18} color="#10B981" />
-              <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>You&apos;re all set!</span>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>Jobs ready!</span>
             </div>
             <p style={{ color: '#9090B8', fontSize: '0.875rem' }}>
-              Found <strong style={{ color: '#A78BFA' }}>{jobs.length} matching jobs</strong>. Start tailoring your resume.
+              Found <strong style={{ color: '#A78BFA' }}>{jobs.length} jobs</strong> for "{searchQuery}". Start tailoring your resume.
             </p>
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate('/jobs')}
-          >
-            View Matched Jobs <ArrowRight size={15} />
+          <button className="btn btn-primary" onClick={() => navigate('/jobs')}>
+            View Jobs <ArrowRight size={15} />
           </button>
         </div>
       )}
