@@ -12,13 +12,23 @@ const PORTAL_BADGE = {
   dice: { label: 'Dice', color: '#C2001F' },
   monster: { label: 'Monster', color: '#7B5EA7' },
   simplyhired: { label: 'SimplyHired', color: '#0948B5' },
+  careerbuilder: { label: 'CareerBuilder', color: '#E05A00' },
+  bebee: { label: 'BeBee', color: '#FFCA00' },
+  talentcom: { label: 'Talent.com', color: '#1E88E5' },
+  other: { label: 'Other', color: '#55557A' },
 };
 
 export default function JobCard({ job, view = 'grid' }) {
   const { tailoredResumes, appliedJobs } = useApp();
   const isTailored = !!tailoredResumes[job.id];
   const isApplied = appliedJobs.includes(job.id);
-  const portal = PORTAL_BADGE[job.portal] ?? { label: job.portal, color: '#9090B8' };
+  // Use the detected portal ID for color; fall back to raw publisherName for the label
+  const portalEntry = PORTAL_BADGE[job.portal] ?? { label: job.publisherName || job.portal || 'Job Board', color: '#55557A' };
+  const portal = {
+    ...portalEntry,
+    // Show the raw publisher name (e.g. "LinkedIn Jobs") if it differs from the generic label
+    label: job.publisherName || portalEntry.label,
+  };
 
   // Match score is revealed only after the user has tailored this job's resume
   const revealedScore = isTailored

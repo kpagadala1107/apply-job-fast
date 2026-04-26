@@ -9,7 +9,7 @@ import {
   dbSaveAppliedJob, dbLoadAppliedJobs,
 } from '../services/db';
 
-const USE_LIVE_API = !!import.meta.env.VITE_RAPIDAPI_KEY;
+export const USE_LIVE_API = !!import.meta.env.VITE_RAPIDAPI_KEY;
 
 const AppContext = createContext(null);
 
@@ -21,10 +21,11 @@ const initialState = {
   tailoredResumes: {},
   appliedJobs: [],
   loadingJobs: false,
-  // Supabase session state
+  lastFetched: null,        // ISO timestamp of the most recent live fetch
+  jobsFetchedLive: false,   // true when current jobs came from the API
   userId: null,
-  dbReady: false,       // true once initial DB load is complete
-  dbError: null,        // non-null if DB init failed
+  dbReady: false,
+  dbError: null,
 };
 
 function reducer(state, action) {
@@ -45,11 +46,20 @@ function reducer(state, action) {
       return {
         ...state,
         portals,
-        jobs: anyConnected ? state.jobs.filter((j) => j.portal !== action.payload) : [],
+        // Remove jobs that were fetched via this portal connection
+        jobs: anyConnected ? state.jobs.filter((j) => j.connectedVia !== action.payload) : [],
       };
     }
     case 'SET_JOBS':
-      return { ...state, jobs: action.payload, loadingJobs: false };
+      return {
+        ...state,
+        jobs: action.payload.jobs,
+        loadingJobs: false,
+        lastFetched: action.payload.live ? new Date().toISOString() : state.lastFetched,
+        jobsFetchedLive: action.payload.live || state.jobsFetchedLive,
+      };
+    case 'SET_LOADING':
+      return { ...state, loadingJobs: action.payload };
     case 'SAVE_TAILORED_RESUME':
       return {
         ...state,
@@ -75,10 +85,12 @@ function reducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  // Keep a ref for userId so callbacks don't stale-close over it
   const userIdRef = useRef(null);
+  // Track how many live fetches have happened so each gets a different page offset
+  const fetchCountRef = useRef(0);
 
-  // ── Boot: create anonymous Supabase session and load persisted data ────────
+  // ── Boot ──────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!isSupabaseConfigured) {
       dispatch({ type: 'DB_READY' });
@@ -98,7 +110,6 @@ export function AppProvider({ children }) {
         userIdRef.current = userId;
         dispatch({ type: 'SET_USER_ID', payload: userId });
 
-        // Load all persisted data in parallel
         const [resume, tailoredResumes, appliedJobs] = await Promise.all([
           dbLoadResume(userId),
           dbLoadTailoredResumes(userId),
@@ -120,10 +131,24 @@ export function AppProvider({ children }) {
     return () => { cancelled = true; };
   }, []);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  const getSearchQuery = useCallback((resume) =>
+    resume?.searchQuery || resume?.role || inferJobRole(resume?.text || '') || 'Software Engineer',
+  []);
+
+  async function fetchAndMerge({ portal, currentJobs, resume, dateRange, page }) {
+    const liveJobs = await fetchJobsFromJSearch({ query: getSearchQuery(resume), dateRange, page });
+    // Preserve portal = actual source (from detectPortal/job_publisher).
+    // Add connectedVia so disconnect correctly removes only jobs from this connection.
+    const tagged = liveJobs.map((j) => ({ ...j, connectedVia: portal }));
+    const existingIds = new Set(currentJobs.map((j) => j.id));
+    return [...currentJobs, ...tagged.filter((j) => !existingIds.has(j.id))];
+  }
+
   // ── Actions ───────────────────────────────────────────────────────────────
 
   const uploadResume = useCallback(async (file) => {
-    // Show file immediately while parsing runs in background
     dispatch({
       type: 'UPLOAD_RESUME',
       payload: { name: file.name, size: file.size, type: file.type, uploadedAt: new Date().toISOString(), text: '', skills: [], parsing: true },
@@ -154,19 +179,19 @@ export function AppProvider({ children }) {
 
       if (USE_LIVE_API) {
         try {
-          // Use the inferred role (e.g. "Senior Frontend Engineer") as the search term.
-          // Fall back to inferring from skills text if role wasn't stored (e.g. loaded from DB).
-          const searchQuery = state.resume?.searchQuery
-            || state.resume?.role
-            || inferJobRole(state.resume?.text || '')
-            || 'Software Engineer';
-          const liveJobs = await fetchJobsFromJSearch({ query: searchQuery, dateRange: state.dateRange });
-          const tagged = liveJobs.map((j) => ({ ...j, portal }));
-          const existingIds = new Set(state.jobs.map((j) => j.id));
-          const merged = [...state.jobs, ...tagged.filter((j) => !existingIds.has(j.id))];
-          dispatch({ type: 'SET_JOBS', payload: merged });
+          // Use an incrementing page offset so each connection fetches a different slice
+          fetchCountRef.current += 1;
+          const page = fetchCountRef.current;
+          const merged = await fetchAndMerge({
+            portal,
+            currentJobs: state.jobs,
+            resume: state.resume,
+            dateRange: state.dateRange,
+            page,
+          });
+          dispatch({ type: 'SET_JOBS', payload: { jobs: merged, live: true } });
         } catch (err) {
-          console.error('Live job fetch failed, using mock data:', err);
+          console.error('[connectPortal] Live fetch failed, falling back to mock data:', err.message);
           loadMockJobs(portal);
         }
       } else {
@@ -175,12 +200,47 @@ export function AppProvider({ children }) {
 
       function loadMockJobs(p) {
         const existingIds = state.jobs.map((j) => j.id);
-        const fresh = MOCK_JOBS.filter((j) => j.portal === p && !existingIds.includes(j.id));
-        dispatch({ type: 'SET_JOBS', payload: [...state.jobs, ...fresh] });
+        const fresh = MOCK_JOBS
+          .filter((j) => j.portal === p && !existingIds.includes(j.id))
+          .map((j) => ({ ...j, connectedVia: p }));
+        dispatch({ type: 'SET_JOBS', payload: { jobs: [...state.jobs, ...fresh], live: false } });
       }
     },
-    [state.jobs, state.resume]
+    [state.jobs, state.resume, state.dateRange, getSearchQuery]
   );
+
+  // Re-fetches all connected portals with a fresh page offset for new results
+  const refreshJobs = useCallback(async () => {
+    const connectedPortals = Object.entries(state.portals)
+      .filter(([, connected]) => connected)
+      .map(([id]) => id);
+
+    if (!connectedPortals.length) return;
+    if (!USE_LIVE_API) return;
+
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      // Clear jobs from connected portals, keep applied/tailored job IDs intact
+      const keepJobs = state.jobs.filter((j) => !connectedPortals.includes(j.connectedVia));
+      let result = keepJobs;
+
+      for (const portal of connectedPortals) {
+        fetchCountRef.current += 1;
+        const page = fetchCountRef.current;
+        result = await fetchAndMerge({
+          portal,
+          currentJobs: result,
+          resume: state.resume,
+          dateRange: state.dateRange,
+          page,
+        });
+      }
+      dispatch({ type: 'SET_JOBS', payload: { jobs: result, live: true } });
+    } catch (err) {
+      console.error('[refreshJobs] Failed:', err.message);
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [state.portals, state.jobs, state.resume, state.dateRange, getSearchQuery]);
 
   const disconnectPortal = useCallback((portal) => {
     dispatch({ type: 'DISCONNECT_PORTAL', payload: portal });
@@ -205,9 +265,7 @@ export function AppProvider({ children }) {
     const userId = userIdRef.current;
     if (!userId) return;
 
-    const job = state.jobs.find((j) => j.id === jobId)
-      ?? MOCK_JOBS.find((j) => j.id === jobId);
-
+    const job = state.jobs.find((j) => j.id === jobId) ?? MOCK_JOBS.find((j) => j.id === jobId);
     if (job) await dbSaveAppliedJob({ userId, job });
   }, [state.jobs]);
 
@@ -215,9 +273,11 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         ...state,
+        isLive: USE_LIVE_API,
         uploadResume,
         connectPortal,
         disconnectPortal,
+        refreshJobs,
         setDateRange,
         saveTailoredResume,
         markApplied,

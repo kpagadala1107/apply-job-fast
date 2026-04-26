@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, Grid, List, X, Loader2, Briefcase } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid, List, X, Loader2, Briefcase, RefreshCw, Radio } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import JobCard from '../components/JobCard';
 import PortalConnect from '../components/PortalConnect';
@@ -23,7 +23,7 @@ const DATE_RANGES = [
 ];
 
 export default function JobSearch() {
-  const { jobs, loadingJobs, portals } = useApp();
+  const { jobs, loadingJobs, portals, refreshJobs, lastFetched, isLive } = useApp();
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('match');
   const [workMode, setWorkMode] = useState('All');
@@ -101,16 +101,44 @@ export default function JobSearch() {
     <div style={{ maxWidth: 1100, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Find Jobs</h2>
           {jobs.length > 0 && (
             <span style={{ color: '#9090B8', fontSize: '0.9rem' }}>
-              {filtered.length} of {jobs.length} results · avg. {avgMatch}% match
+              {filtered.length} of {jobs.length} results
             </span>
+          )}
+          {/* Live / Mock indicator */}
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '3px 10px', borderRadius: 99, fontSize: '0.72rem', fontWeight: 600,
+            background: isLive ? 'rgba(16,185,129,0.1)' : 'rgba(139,92,246,0.1)',
+            color: isLive ? '#6EE7B7' : '#C4B5FD',
+            border: `1px solid ${isLive ? 'rgba(16,185,129,0.2)' : 'rgba(139,92,246,0.2)'}`,
+          }}>
+            <Radio size={10} />
+            {isLive ? 'Live data' : 'Demo data'}
+          </span>
+          {/* Refresh button — only when live API is connected */}
+          {isLive && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={refreshJobs}
+              disabled={loadingJobs}
+              title={lastFetched ? `Last fetched: ${new Date(lastFetched).toLocaleTimeString()}` : 'Fetch fresh results'}
+              style={{ marginLeft: 'auto' }}
+            >
+              <RefreshCw size={13} style={loadingJobs ? { animation: 'spin 1s linear infinite' } : undefined} />
+              {lastFetched
+                ? `Refreshed ${timeSince(lastFetched)}`
+                : 'Refresh Jobs'}
+            </button>
           )}
         </div>
         <p style={{ color: '#9090B8', fontSize: '0.875rem' }}>
-          Jobs ranked by AI match score against your resume
+          {isLive
+            ? 'Live jobs from job boards, matched against your resume after tailoring'
+            : 'Sample jobs — add a RapidAPI key to fetch live results'}
         </p>
       </div>
 
@@ -218,6 +246,13 @@ export default function JobSearch() {
       )}
     </div>
   );
+}
+
+function timeSince(isoString) {
+  const secs = Math.floor((Date.now() - new Date(isoString)) / 1000);
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+  return `${Math.floor(secs / 3600)}h ago`;
 }
 
 function FilterGroup({ label, options, value, onChange }) {
