@@ -67,7 +67,7 @@ export default function Dashboard() {
             <LayoutDashboard size={28} color="#A78BFA" />
           </div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>Your Dashboard</h2>
-          <p style={{ color: '#9090B8', lineHeight: 1.7 }}>
+          <p style={{ color: 'var(--text-2)', lineHeight: 1.7 }}>
             Once you tailor your resume for jobs, they&apos;ll appear here.
             Start by browsing matched jobs and clicking &ldquo;Tailor Resume&rdquo;.
           </p>
@@ -91,7 +91,7 @@ export default function Dashboard() {
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 4 }}>Dashboard</h2>
-        <p style={{ color: '#9090B8', fontSize: '0.875rem' }}>
+        <p style={{ color: 'var(--text-2)', fontSize: '0.875rem' }}>
           Track your tailored applications and job progress
         </p>
       </div>
@@ -137,7 +137,7 @@ export default function Dashboard() {
                 {/* Job info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                    <span style={{ fontWeight: 600, color: '#F0EFFF', fontSize: '0.95rem' }}>{job.title}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text)', fontSize: '0.95rem' }}>{job.title}</span>
                     <span className="badge badge-purple" style={{ gap: 4 }}>
                       <Wand2 size={10} /> Tailored
                     </span>
@@ -147,7 +147,7 @@ export default function Dashboard() {
                       </span>
                     )}
                   </div>
-                  <div style={{ color: '#9090B8', fontSize: '0.82rem' }}>
+                  <div style={{ color: 'var(--text-2)', fontSize: '0.82rem' }}>
                     {job.company} · {job.location} · {job.salary}
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: '1.2rem', fontWeight: 800, color: scoreColor, letterSpacing: '-0.02em' }}>
                     {data?.estimatedScore || job.matchScore}%
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: '#55557A' }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-3)' }}>
                     ↑ from {job.matchScore}%
                   </div>
                 </div>
@@ -204,13 +204,13 @@ export default function Dashboard() {
                     {job.companyData.initial}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#F0EFFF' }}>{job.title}</div>
-                    <div style={{ color: '#9090B8', fontSize: '0.8rem' }}>{job.company} · {job.location}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>{job.title}</div>
+                    <div style={{ color: 'var(--text-2)', fontSize: '0.8rem' }}>{job.company} · {job.location}</div>
                   </div>
                   <span className="badge badge-green">
                     <CheckCircle2 size={12} /> Applied
                   </span>
-                  <span style={{ color: '#9090B8', fontSize: '0.78rem' }}>via {job.portal === 'linkedin' ? 'LinkedIn' : 'Indeed'}</span>
+                  <span style={{ color: 'var(--text-2)', fontSize: '0.78rem' }}>via {job.portal === 'linkedin' ? 'LinkedIn' : 'Indeed'}</span>
                 </div>
               </div>
             ))}
@@ -232,10 +232,10 @@ function StatCard({ label, value, Icon, color, bg }) {
           <Icon size={17} color={color} />
         </div>
       </div>
-      <div style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#F0EFFF', lineHeight: 1 }}>
+      <div style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text)', lineHeight: 1 }}>
         {value}
       </div>
-      <div style={{ color: '#9090B8', fontSize: '0.78rem', marginTop: 4 }}>{label}</div>
+      <div style={{ color: 'var(--text-2)', fontSize: '0.78rem', marginTop: 4 }}>{label}</div>
     </div>
   );
 }

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Search, Home, FileText, ChevronRight,
-  Settings, Zap, Menu, X
+  Settings, Zap, Menu, X, Sun, Moon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -17,12 +17,21 @@ const BREADCRUMBS = {
   '/jobs': 'Find Jobs',
   '/dashboard': 'Dashboard',
   '/tailor': 'Tailor Resume',
+  '/prep': 'Prep Plan',
 };
 
 export default function Layout() {
   const { resume, jobs, tailoredResumes, searchQuery, searchLocation } = useApp();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   const tailoredCount = Object.keys(tailoredResumes).length;
 
@@ -56,10 +65,10 @@ export default function Layout() {
               <Zap size={18} color="white" />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#F0EFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                 ApplyFast
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#55557A', letterSpacing: '0.05em' }}>AI JOB ASSISTANT</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-3)', letterSpacing: '0.05em' }}>AI JOB ASSISTANT</div>
             </div>
           </div>
           {/* Close button — visible only on mobile via CSS */}
@@ -73,11 +82,11 @@ export default function Layout() {
           </button>
         </div>
 
-        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '0 16px' }} />
+        <div style={{ height: 1, background: 'var(--border)', margin: '0 16px' }} />
 
         {/* Nav */}
         <nav style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ marginBottom: 8, padding: '0 8px', color: '#55557A', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
+          <div style={{ marginBottom: 8, padding: '0 8px', color: 'var(--text-3)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
             NAVIGATION
           </div>
           {NAV.map(({ to, label, icon: Icon, exact }) => (
@@ -90,7 +99,7 @@ export default function Layout() {
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 12px', borderRadius: 9, marginBottom: 2,
                 textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500,
-                color: isActive ? '#F0EFFF' : '#9090B8',
+                color: isActive ? 'var(--text)' : 'var(--text-2)',
                 background: isActive ? 'linear-gradient(90deg, rgba(139,92,246,0.18), rgba(59,130,246,0.08))' : 'transparent',
                 borderLeft: isActive ? '2px solid #8B5CF6' : '2px solid transparent',
                 transition: 'all 0.15s',
@@ -98,7 +107,7 @@ export default function Layout() {
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={16} color={isActive ? '#A78BFA' : '#55557A'} />
+                  <Icon size={16} color={isActive ? '#A78BFA' : 'var(--text-3)'} />
                   {label}
                   {label === 'Find Jobs' && jobs.length > 0 && (
                     <span style={{
@@ -122,22 +131,22 @@ export default function Layout() {
           ))}
 
           {/* Resume status */}
-          <div style={{ marginTop: 24, marginBottom: 8, padding: '0 8px', color: '#55557A', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
+          <div style={{ marginTop: 24, marginBottom: 8, padding: '0 8px', color: 'var(--text-3)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
             RESUME
           </div>
           <div style={{
             padding: '10px 12px', borderRadius: 9,
             background: resume ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${resume ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}`,
+            border: `1px solid ${resume ? 'rgba(16,185,129,0.2)' : 'var(--border)'}`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={14} color={resume ? '#10B981' : '#55557A'} />
+              <FileText size={14} color={resume ? '#10B981' : 'var(--text-3)'} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 500, color: resume ? '#6EE7B7' : '#55557A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 500, color: resume ? '#6EE7B7' : 'var(--text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {resume ? resume.name : 'No resume'}
                 </div>
                 {resume && (
-                  <div style={{ fontSize: '0.68rem', color: '#55557A', marginTop: 1 }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-3)', marginTop: 1 }}>
                     Ready for matching
                   </div>
                 )}
@@ -148,7 +157,7 @@ export default function Layout() {
           {/* Last search */}
           {jobs.length > 0 && searchQuery && (
             <>
-              <div style={{ marginTop: 16, marginBottom: 8, padding: '0 8px', color: '#55557A', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
+              <div style={{ marginTop: 16, marginBottom: 8, padding: '0 8px', color: 'var(--text-3)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.1em' }}>
                 LAST SEARCH
               </div>
               <div style={{
@@ -160,9 +169,9 @@ export default function Layout() {
                   {searchQuery}
                 </div>
                 {searchLocation && (
-                  <div style={{ fontSize: '0.68rem', color: '#55557A', marginTop: 2 }}>{searchLocation}</div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-3)', marginTop: 2 }}>{searchLocation}</div>
                 )}
-                <div style={{ fontSize: '0.68rem', color: '#55557A', marginTop: 4 }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-3)', marginTop: 4 }}>
                   {jobs.length} job{jobs.length !== 1 ? 's' : ''} found
                 </div>
               </div>
@@ -171,8 +180,8 @@ export default function Layout() {
         </nav>
 
         {/* Bottom */}
-        <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start', gap: 10, color: '#55557A' }}>
+        <div style={{ padding: '16px 12px', borderTop: '1px solid var(--border)' }}>
+          <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start', gap: 10, color: 'var(--text-3)' }}>
             <Settings size={15} />
             Settings
           </button>
@@ -192,9 +201,9 @@ export default function Layout() {
             <Menu size={22} />
           </button>
 
-          <span style={{ color: '#55557A', fontSize: '0.82rem' }}>ApplyFast</span>
-          <ChevronRight size={14} color="#55557A" />
-          <span style={{ color: '#9090B8', fontSize: '0.82rem' }}>{breadcrumb?.[1] || 'Page'}</span>
+          <span style={{ color: 'var(--text-3)', fontSize: '0.82rem' }}>ApplyFast</span>
+          <ChevronRight size={14} color="var(--text-3)" />
+          <span style={{ color: 'var(--text-2)', fontSize: '0.82rem' }}>{breadcrumb?.[1] || 'Page'}</span>
 
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
             {resume && (
@@ -208,6 +217,19 @@ export default function Layout() {
                 {jobs.length} jobs
               </span>
             )}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 30, height: 30,
+                background: 'var(--card)', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                color: 'var(--text-2)', transition: 'all 0.15s', flexShrink: 0,
+              }}
+            >
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
             {/* Mobile status dot */}
             {resume && (
               <div

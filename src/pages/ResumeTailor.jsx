@@ -48,7 +48,7 @@ export default function ResumeTailor() {
 
   if (!job) {
     return (
-      <div style={{ textAlign: 'center', padding: '64px 0', color: '#9090B8' }}>
+      <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--text-2)' }}>
         <div style={{ fontSize: '1.1rem', fontWeight: 500, marginBottom: 8 }}>Job not found</div>
         <Link to="/jobs" className="btn btn-secondary">Back to Jobs</Link>
       </div>
@@ -94,10 +94,10 @@ export default function ResumeTailor() {
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 4 }}>{job.title}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ color: '#9090B8' }}>{job.company}</span>
-              <span style={{ color: '#55557A' }}>·</span>
-              <span style={{ color: '#9090B8' }}>{job.location}</span>
-              <span style={{ color: '#55557A' }}>·</span>
+              <span style={{ color: 'var(--text-2)' }}>{job.company}</span>
+              <span style={{ color: 'var(--text-3)' }}>·</span>
+              <span style={{ color: 'var(--text-2)' }}>{job.location}</span>
+              <span style={{ color: 'var(--text-3)' }}>·</span>
               <span style={{ color: '#A78BFA', fontWeight: 500 }}>{job.salary}</span>
             </div>
           </div>
@@ -142,17 +142,17 @@ export default function ResumeTailor() {
               style={{
                 width: '100%', padding: '16px 20px', background: 'none', border: 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                cursor: 'pointer', color: '#F0EFFF',
+                cursor: 'pointer', color: 'var(--text)',
               }}
             >
               <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>Job Description</span>
-              {showJD ? <ChevronUp size={16} color="#55557A" /> : <ChevronDown size={16} color="#55557A" />}
+              {showJD ? <ChevronUp size={16} color="var(--text-3)" /> : <ChevronDown size={16} color="var(--text-3)" />}
             </button>
             {showJD && (
               <div style={{
                 padding: '0 20px 20px',
                 maxHeight: 320, overflowY: 'auto',
-                color: '#9090B8', fontSize: '0.82rem', lineHeight: 1.75,
+                color: 'var(--text-2)', fontSize: '0.82rem', lineHeight: 1.75,
                 whiteSpace: 'pre-wrap',
               }}>
                 {job.description}
@@ -165,7 +165,7 @@ export default function ResumeTailor() {
             <div style={{ fontWeight: 600, marginBottom: 16, fontSize: '0.95rem' }}>AI Match Analysis</div>
 
             {loadingAnalysis ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#9090B8', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-2)', fontSize: '0.85rem' }}>
                 <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                 Analyzing your resume...
               </div>
@@ -174,7 +174,7 @@ export default function ResumeTailor() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                   <div style={{
                     flex: 1, height: 6, borderRadius: 99,
-                    background: 'rgba(255,255,255,0.06)', overflow: 'hidden',
+                    background: 'var(--bg-3)', overflow: 'hidden',
                   }}>
                     <div style={{
                       height: '100%', width: `${analysis.score}%`,
@@ -188,7 +188,7 @@ export default function ResumeTailor() {
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#55557A', letterSpacing: '0.08em', marginBottom: 8 }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-3)', letterSpacing: '0.08em', marginBottom: 8 }}>
                     STRENGTHS
                   </div>
                   {analysis.strengths.map((s) => (
@@ -200,7 +200,7 @@ export default function ResumeTailor() {
 
                 {analysis.gaps.length > 0 && (
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#55557A', letterSpacing: '0.08em', marginBottom: 8 }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-3)', letterSpacing: '0.08em', marginBottom: 8 }}>
                       GAPS TO ADDRESS
                     </div>
                     {analysis.gaps.map((g) => (
@@ -212,12 +212,12 @@ export default function ResumeTailor() {
                 )}
 
                 <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#55557A', letterSpacing: '0.08em', marginBottom: 8 }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-3)', letterSpacing: '0.08em', marginBottom: 8 }}>
                     AI SUGGESTIONS
                   </div>
                   {analysis.suggestions.map((s, i) => (
                     <div key={i} style={{
-                      fontSize: '0.8rem', color: '#9090B8', marginBottom: 6,
+                      fontSize: '0.8rem', color: 'var(--text-2)', marginBottom: 6,
                       paddingLeft: 12, borderLeft: '2px solid rgba(139,92,246,0.3)',
                     }}>
                       {s}
@@ -270,7 +270,7 @@ export default function ResumeTailor() {
         <div className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Tabs */}
           <div style={{
-            display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.07)',
+            display: 'flex', borderBottom: '1px solid var(--border)',
             padding: '0 20px',
           }}>
             {[
@@ -284,7 +284,7 @@ export default function ResumeTailor() {
                 style={{
                   padding: '14px 16px', background: 'none', border: 'none',
                   fontSize: '0.875rem', fontWeight: 500, cursor: t.disabled ? 'not-allowed' : 'pointer',
-                  color: tab === t.id ? '#F0EFFF' : '#55557A',
+                  color: tab === t.id ? 'var(--text)' : 'var(--text-3)',
                   borderBottom: tab === t.id ? '2px solid #8B5CF6' : '2px solid transparent',
                   marginBottom: -1, transition: 'all 0.15s', opacity: t.disabled ? 0.4 : 1,
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -303,7 +303,7 @@ export default function ResumeTailor() {
           {/* Editor area */}
           <div style={{ padding: '4px', flex: 1 }}>
             {loadingTailor ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '80px 32px', color: '#9090B8' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '80px 32px', color: 'var(--text-2)' }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
                   border: '3px solid rgba(139,92,246,0.2)',
@@ -311,7 +311,7 @@ export default function ResumeTailor() {
                   animation: 'spin 0.8s linear infinite',
                 }} />
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontWeight: 500, color: '#F0EFFF', marginBottom: 4 }}>AI is tailoring your resume</div>
+                  <div style={{ fontWeight: 500, color: 'var(--text)', marginBottom: 4 }}>AI is tailoring your resume</div>
                   <div style={{ fontSize: '0.82rem' }}>Optimizing for {job.title} at {job.company}</div>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function ResumeTailor() {
                 }}
               />
             ) : resume?.parsing ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '40px 20px', color: '#9090B8', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '40px 20px', color: 'var(--text-2)', fontSize: '0.85rem' }}>
                 <Loader2 size={16} style={{ animation: 'spin 1s linear infinite', flexShrink: 0 }} />
                 Parsing resume...
               </div>
@@ -336,13 +336,13 @@ export default function ResumeTailor() {
               <div style={{
                 padding: '16px 20px', minHeight: 520,
                 fontFamily: "'JetBrains Mono', monospace", fontSize: '0.78rem',
-                lineHeight: 1.8, color: '#9090B8', whiteSpace: 'pre-wrap',
+                lineHeight: 1.8, color: 'var(--text-2)', whiteSpace: 'pre-wrap',
                 overflowY: 'auto',
               }}>
                 {resumeText}
               </div>
             ) : (
-              <div style={{ padding: '40px 20px', color: '#55557A', fontSize: '0.85rem', textAlign: 'center' }}>
+              <div style={{ padding: '40px 20px', color: 'var(--text-3)', fontSize: '0.85rem', textAlign: 'center' }}>
                 No resume uploaded yet.{' '}
                 <Link to="/" style={{ color: '#A78BFA' }}>Upload one</Link> to get started.
               </div>
@@ -367,16 +367,16 @@ function ResumePreview({ tailored, onDownload }) {
     section: { marginBottom: 20 },
     heading: { fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: '#8B5CF6', textTransform: 'uppercase', borderBottom: '1px solid rgba(139,92,246,0.2)', paddingBottom: 4, marginBottom: 10 },
     expHeader: { display: 'flex', justifyContent: 'space-between', marginBottom: 6 },
-    expTitle: { fontWeight: 600, color: '#F0EFFF', fontSize: '0.9rem' },
-    expPeriod: { color: '#9090B8', fontSize: '0.8rem' },
-    bullet: { color: '#9090B8', fontSize: '0.82rem', lineHeight: 1.7, paddingLeft: 16, position: 'relative' },
+    expTitle: { fontWeight: 600, color: 'var(--text)', fontSize: '0.9rem' },
+    expPeriod: { color: 'var(--text-2)', fontSize: '0.8rem' },
+    bullet: { color: 'var(--text-2)', fontSize: '0.82rem', lineHeight: 1.7, paddingLeft: 16, position: 'relative' },
   };
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ textAlign: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#F0EFFF', letterSpacing: '-0.02em' }}>{name}</div>
-        <div style={{ color: '#9090B8', fontSize: '0.82rem', marginTop: 4 }}>{contact}</div>
+      <div style={{ textAlign: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid var(--border)' }}>
+        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>{name}</div>
+        <div style={{ color: 'var(--text-2)', fontSize: '0.82rem', marginTop: 4 }}>{contact}</div>
         {tailored.tailoredFor && (
           <div style={{ marginTop: 8 }}>
             <span className="badge badge-purple">Tailored for {tailored.tailoredFor}</span>
@@ -386,7 +386,7 @@ function ResumePreview({ tailored, onDownload }) {
 
       <div style={s.section}>
         <div style={s.heading}>Summary</div>
-        <p style={{ color: '#9090B8', fontSize: '0.85rem', lineHeight: 1.7 }}>{summary}</p>
+        <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', lineHeight: 1.7 }}>{summary}</p>
       </div>
 
       <div style={s.section}>

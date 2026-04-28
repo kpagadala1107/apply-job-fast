@@ -68,7 +68,7 @@ export default function Landing() {
           Land your dream job{' '}
           <span className="gradient-text">10x faster</span>
         </h1>
-        <p style={{ color: '#9090B8', fontSize: '1.1rem', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>
+        <p style={{ color: 'var(--text-2)', fontSize: '1.1rem', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>
           Upload your resume, search for jobs, and let AI tailor your application for every opportunity.
         </p>
 
@@ -99,8 +99,8 @@ export default function Landing() {
               <Icon size={15} color="#A78BFA" />
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#F0EFFF' }}>{label}</div>
-              <div style={{ fontSize: '0.75rem', color: '#9090B8' }}>{desc}</div>
+              <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text)' }}>{label}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-2)' }}>{desc}</div>
             </div>
           </div>
         ))}
@@ -112,7 +112,7 @@ export default function Landing() {
           <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 6 }}>
             {resume ? 'Resume Uploaded' : 'Upload Your Resume'}
           </h2>
-          <p style={{ color: '#9090B8', fontSize: '0.85rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', lineHeight: 1.6 }}>
             {resume
               ? 'Your resume is parsed and ready for AI matching.'
               : 'PDF, DOC, or DOCX. Our AI will extract and analyze your experience.'}
@@ -129,7 +129,7 @@ export default function Landing() {
                   ✓ {resume.skills?.length || 0} skills extracted
                 </div>
                 {resume.role && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: '#9090B8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--text-2)' }}>
                     Detected role:
                     <span style={{
                       background: 'rgba(139,92,246,0.15)', color: '#C4B5FD',
@@ -154,7 +154,7 @@ export default function Landing() {
         )}
 
         {resume?.parsing && (
-          <div style={{ marginTop: 12, fontSize: '0.78rem', color: '#9090B8', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ marginTop: 12, fontSize: '0.78rem', color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.3)', borderTop: '2px solid #10B981', animation: 'spin 0.8s linear infinite' }} />
             Extracting skills from resume...
           </div>
@@ -165,7 +165,7 @@ export default function Landing() {
       <div className="card animate-fade-up" style={{ padding: '28px' }}>
         <div style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 6 }}>Find Jobs</h2>
-          <p style={{ color: '#9090B8', fontSize: '0.85rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', lineHeight: 1.6 }}>
             Edit the search query, set your location and date range, then fetch live job listings.
             {!isLive && <span style={{ color: '#F59E0B' }}> (Demo mode — add a RapidAPI key for live results)</span>}
           </p>
@@ -174,7 +174,7 @@ export default function Landing() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* Query */}
           <div style={{ position: 'relative' }}>
-            <Search size={15} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+            <Search size={15} color="var(--text-3)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             <input
               className="input"
               placeholder="Job title or keywords, e.g. Senior React Developer"
@@ -188,7 +188,7 @@ export default function Landing() {
           {/* Location + Date range row */}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 160, position: 'relative' }}>
-              <MapPin size={14} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <MapPin size={14} color="var(--text-3)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
               <input
                 className="input"
                 placeholder="Location (or leave blank for all)"
@@ -200,7 +200,7 @@ export default function Landing() {
             </div>
 
             <div style={{ position: 'relative', flexShrink: 0 }}>
-              <Calendar size={14} color="#55557A" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <Calendar size={14} color="var(--text-3)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
               <select
                 className="input"
                 value={localDateRange}
@@ -240,7 +240,7 @@ export default function Landing() {
       <div className="animate-fade-up" style={{ marginTop: 56 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>How it works</h2>
-          <p style={{ color: '#9090B8', fontSize: '0.9rem' }}>Three steps to your next job</p>
+          <p style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>Three steps to your next job</p>
         </div>
         <div className="grid-cols-3">
           {[
@@ -269,8 +269,8 @@ export default function Landing() {
               }}>
                 {step}
               </div>
-              <div style={{ fontWeight: 600, marginBottom: 6, color: '#F0EFFF' }}>{title}</div>
-              <div style={{ color: '#9090B8', fontSize: '0.82rem', lineHeight: 1.6 }}>{desc}</div>
+              <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>{title}</div>
+              <div style={{ color: 'var(--text-2)', fontSize: '0.82rem', lineHeight: 1.6 }}>{desc}</div>
             </div>
           ))}
         </div>
@@ -290,7 +290,7 @@ export default function Landing() {
               <CheckCircle2 size={18} color="#10B981" />
               <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>Jobs ready!</span>
             </div>
-            <p style={{ color: '#9090B8', fontSize: '0.875rem' }}>
+            <p style={{ color: 'var(--text-2)', fontSize: '0.875rem' }}>
               Found <strong style={{ color: '#A78BFA' }}>{jobs.length} jobs</strong> for "{searchQuery}". Start tailoring your resume.
             </p>
           </div>

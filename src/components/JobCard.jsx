@@ -1,4 +1,4 @@
-import { MapPin, Clock, Briefcase, ArrowRight, CheckCircle2, Wand2 } from 'lucide-react';
+import { MapPin, Clock, Briefcase, ArrowRight, CheckCircle2, Wand2, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import MatchRing from './MatchRing';
@@ -15,7 +15,7 @@ const PORTAL_BADGE = {
   careerbuilder: { label: 'CareerBuilder', color: '#E05A00' },
   bebee: { label: 'BeBee', color: '#FFCA00' },
   talentcom: { label: 'Talent.com', color: '#1E88E5' },
-  other: { label: 'Other', color: '#55557A' },
+  other: { label: 'Other', color: 'var(--text-3)' },
 };
 
 export default function JobCard({ job, view = 'grid' }) {
@@ -23,7 +23,7 @@ export default function JobCard({ job, view = 'grid' }) {
   const isTailored = !!tailoredResumes[job.id];
   const isApplied = appliedJobs.includes(job.id);
   // Use the detected portal ID for color; fall back to raw publisherName for the label
-  const portalEntry = PORTAL_BADGE[job.portal] ?? { label: job.publisherName || job.portal || 'Job Board', color: '#55557A' };
+  const portalEntry = PORTAL_BADGE[job.portal] ?? { label: job.publisherName || job.portal || 'Job Board', color: 'var(--text-3)' };
   const portal = {
     ...portalEntry,
     // Show the raw publisher name (e.g. "LinkedIn Jobs") if it differs from the generic label
@@ -42,20 +42,23 @@ export default function JobCard({ job, view = 'grid' }) {
           <CompanyAvatar company={job.companyData} size={44} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 600, color: '#F0EFFF', fontSize: '0.95rem' }}>{job.title}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text)', fontSize: '0.95rem' }}>{job.title}</span>
               {isTailored && <span className="badge badge-purple"><Wand2 size={10} /> Tailored</span>}
               {isApplied && <span className="badge badge-green"><CheckCircle2 size={10} /> Applied</span>}
             </div>
-            <div style={{ color: '#9090B8', fontSize: '0.82rem', marginTop: 2 }}>
+            <div style={{ color: 'var(--text-2)', fontSize: '0.82rem', marginTop: 2 }}>
               {job.company} · {job.location} · {job.salary}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
             {revealedScore !== null ? (
               <MatchRing score={revealedScore} size={52} strokeWidth={4} />
             ) : (
               <TailorPromptBadge />
             )}
+            <Link to={`/prep/${job.id}`} className="btn btn-secondary btn-sm" title="Interview Prep Plan">
+              <BookOpen size={13} />
+            </Link>
             <Link to={`/tailor/${job.id}`} className="btn btn-primary btn-sm">
               {isTailored ? 'Edit' : 'Tailor'} <ArrowRight size={13} />
             </Link>
@@ -74,10 +77,10 @@ export default function JobCard({ job, view = 'grid' }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1, minWidth: 0 }}>
           <CompanyAvatar company={job.companyData} size={44} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600, color: '#F0EFFF', fontSize: '0.95rem', lineHeight: 1.3, marginBottom: 2 }}>
+            <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: '0.95rem', lineHeight: 1.3, marginBottom: 2 }}>
               {job.title}
             </div>
-            <div style={{ color: '#9090B8', fontSize: '0.82rem' }}>{job.company}</div>
+            <div style={{ color: 'var(--text-2)', fontSize: '0.82rem' }}>{job.company}</div>
           </div>
         </div>
         {revealedScore !== null ? (
@@ -88,13 +91,13 @@ export default function JobCard({ job, view = 'grid' }) {
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#9090B8', fontSize: '0.78rem' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-2)', fontSize: '0.78rem' }}>
           <MapPin size={12} color="#55557A" /> {job.location}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#9090B8', fontSize: '0.78rem' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-2)', fontSize: '0.78rem' }}>
           <Briefcase size={12} color="#55557A" /> {job.type}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#9090B8', fontSize: '0.78rem' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-2)', fontSize: '0.78rem' }}>
           <Clock size={12} color="#55557A" /> {job.postedDays}d ago
         </span>
       </div>
@@ -127,6 +130,14 @@ export default function JobCard({ job, view = 'grid' }) {
           <Wand2 size={14} />
           {isTailored ? 'Edit Tailoring' : 'Tailor Resume'}
         </Link>
+        <Link
+          to={`/prep/${job.id}`}
+          className="btn btn-secondary"
+          style={{ padding: '8px 12px' }}
+          title="Interview Prep Plan"
+        >
+          <BookOpen size={14} />
+        </Link>
         {isApplied ? (
           <span className="badge badge-green" style={{ padding: '8px 12px', borderRadius: 8 }}>
             <CheckCircle2 size={13} /> Applied
@@ -150,7 +161,7 @@ function TailorPromptBadge() {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       width: 58, height: 58, borderRadius: '50%',
       border: '2px dashed rgba(139,92,246,0.3)',
-      color: '#55557A', fontSize: '0.6rem', fontWeight: 600,
+      color: 'var(--text-3)', fontSize: '0.6rem', fontWeight: 600,
       textAlign: 'center', lineHeight: 1.3, padding: 4, flexShrink: 0,
     }}>
       <Wand2 size={12} color="#55557A" style={{ marginBottom: 2 }} />
@@ -167,7 +178,7 @@ function CompanyAvatar({ company, size = 44 }) {
       border: '1px solid rgba(255,255,255,0.08)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontWeight: 700, fontSize: size * 0.38,
-      color: company.color || '#F0EFFF', flexShrink: 0,
+      color: company.color || 'var(--text)', flexShrink: 0,
       letterSpacing: '-0.5px',
     }}>
       {company.initial}

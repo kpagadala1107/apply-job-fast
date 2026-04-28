@@ -98,7 +98,7 @@ export default function JobSearch() {
             <Search size={28} color="#A78BFA" />
           </div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 8 }}>Search for Jobs</h2>
-          <p style={{ color: '#9090B8', lineHeight: 1.7, fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--text-2)', lineHeight: 1.7, fontSize: '0.9rem' }}>
             Enter a job title or keywords and we'll pull live postings from LinkedIn, Indeed, Glassdoor, and more.
           </p>
           {jobsError && (
@@ -109,7 +109,7 @@ export default function JobSearch() {
         </div>
         <InlineSearchForm searchJobs={searchJobs} initialQuery={searchQuery} initialLocation={searchLocation} initialDateRange={dateRange} />
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')} style={{ color: '#55557A' }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')} style={{ color: 'var(--text-3)' }}>
             ← Back to Home
           </button>
         </div>
@@ -121,10 +121,10 @@ export default function JobSearch() {
 
   if (loadingJobs) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '80px 0', color: '#9090B8' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '80px 0', color: 'var(--text-2)' }}>
         <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(139,92,246,0.2)', borderTop: '3px solid #8B5CF6', animation: 'spin 0.8s linear infinite' }} />
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontWeight: 500, color: '#F0EFFF', marginBottom: 4 }}>Fetching live job listings…</div>
+          <div style={{ fontWeight: 500, color: 'var(--text)', marginBottom: 4 }}>Fetching live job listings…</div>
           <div style={{ fontSize: '0.82rem' }}>
             Searching for <strong style={{ color: '#C4B5FD' }}>{searchQuery || 'jobs'}</strong>
             {searchLocation ? ` in ${searchLocation}` : ''}
@@ -145,11 +145,11 @@ export default function JobSearch() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 600, color: '#F0EFFF', fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontWeight: 600, color: 'var(--text)', fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {searchQuery || 'All jobs'}
                 </span>
                 {searchLocation && (
-                  <span style={{ color: '#9090B8', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ color: 'var(--text-2)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 3 }}>
                     <MapPin size={12} /> {searchLocation}
                   </span>
                 )}
@@ -164,12 +164,12 @@ export default function JobSearch() {
                   {isLive ? 'Live' : 'Demo'}
                 </span>
                 {lastFetched && (
-                  <span style={{ color: '#55557A', fontSize: '0.72rem' }}>
+                  <span style={{ color: 'var(--text-3)', fontSize: '0.72rem' }}>
                     · {timeSince(lastFetched)}
                   </span>
                 )}
               </div>
-              <div style={{ color: '#55557A', fontSize: '0.75rem', marginTop: 2 }}>
+              <div style={{ color: 'var(--text-3)', fontSize: '0.75rem', marginTop: 2 }}>
                 {filtered.length} of {jobs.length} results
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function JobSearch() {
           <div className="animate-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <div style={{ flex: 2, minWidth: 160, position: 'relative' }}>
-                <Search size={14} color="#55557A" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <Search size={14} color="var(--text-3)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                 <input
                   className="input"
                   placeholder="Job title or keywords"
@@ -201,7 +201,7 @@ export default function JobSearch() {
                 />
               </div>
               <div style={{ flex: 1, minWidth: 120, position: 'relative' }}>
-                <MapPin size={13} color="#55557A" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <MapPin size={13} color="var(--text-3)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                 <input
                   className="input"
                   placeholder="Location"
@@ -212,7 +212,7 @@ export default function JobSearch() {
                 />
               </div>
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <Calendar size={13} color="#55557A" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <Calendar size={13} color="var(--text-3)" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                 <select
                   className="input"
                   value={editDateRange}
@@ -238,7 +238,7 @@ export default function JobSearch() {
       {/* ── Local filter bar ── */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 180, position: 'relative' }}>
-          <Search size={15} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <Search size={15} color="var(--text-3)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
           <input
             className="input"
             placeholder="Filter by title, company, or skill…"
@@ -247,7 +247,7 @@ export default function JobSearch() {
             style={{ paddingLeft: 38 }}
           />
           {filterText && (
-            <button onClick={() => setFilterText('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#55557A', display: 'flex' }}>
+            <button onClick={() => setFilterText('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex' }}>
               <X size={14} />
             </button>
           )}
@@ -284,7 +284,7 @@ export default function JobSearch() {
         <div className="card animate-fade-up" style={{ padding: '16px 20px', marginBottom: 16, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
           <FilterGroup label="Work Mode" options={WORK_MODES} value={workMode} onChange={setWorkMode} />
           <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#55557A', letterSpacing: '0.08em', marginBottom: 8 }}>DATE POSTED</div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-3)', letterSpacing: '0.08em', marginBottom: 8 }}>DATE POSTED</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {DATE_RANGE_OPTIONS.concat([{ value: 'all', label: 'All time' }]).map((opt) => (
                 <button key={opt.value} onClick={() => setDateFilter(opt.value)} className={`btn btn-sm ${dateFilter === opt.value ? 'btn-primary' : 'btn-secondary'}`}>
@@ -298,7 +298,7 @@ export default function JobSearch() {
 
       {/* ── No results ── */}
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '48px 0', color: '#9090B8' }}>
+        <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-2)' }}>
           <Search size={32} style={{ marginBottom: 12, opacity: 0.4 }} />
           <div style={{ fontWeight: 500 }}>No jobs match your filters</div>
           <div style={{ fontSize: '0.85rem', marginTop: 4 }}>Try clearing filters or editing the search query above</div>
@@ -340,7 +340,7 @@ function InlineSearchForm({ searchJobs, initialQuery = '', initialLocation = '',
   return (
     <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ position: 'relative' }}>
-        <Search size={15} color="#55557A" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+        <Search size={15} color="var(--text-3)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
         <input
           className="input"
           placeholder="Job title or keywords, e.g. Senior React Developer"
@@ -353,7 +353,7 @@ function InlineSearchForm({ searchJobs, initialQuery = '', initialLocation = '',
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 140, position: 'relative' }}>
-          <MapPin size={13} color="#55557A" style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <MapPin size={13} color="var(--text-3)" style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
           <input
             className="input"
             placeholder="Location (optional)"
@@ -364,7 +364,7 @@ function InlineSearchForm({ searchJobs, initialQuery = '', initialLocation = '',
           />
         </div>
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <Calendar size={13} color="#55557A" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <Calendar size={13} color="var(--text-3)" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
           <select className="input" value={dr} onChange={(e) => setDr(e.target.value)} style={{ paddingLeft: 28, width: 140 }}>
             {DATE_RANGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
@@ -385,7 +385,7 @@ function InlineSearchForm({ searchJobs, initialQuery = '', initialLocation = '',
 function FilterGroup({ label, options, value, onChange }) {
   return (
     <div>
-      <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#55557A', letterSpacing: '0.08em', marginBottom: 8 }}>
+      <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-3)', letterSpacing: '0.08em', marginBottom: 8 }}>
         {label.toUpperCase()}
       </div>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>

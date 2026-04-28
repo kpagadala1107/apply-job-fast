@@ -73,6 +73,57 @@ Return this exact JSON structure (no other text):
   "estimatedScore": <integer, expected match % after tailoring, typically 85–97>
 }`;
 
+const PREP_PLAN_PROMPT = `You are a senior technical recruiter and interview coach.
+Given a job posting, create a comprehensive interview preparation plan.
+
+Return this exact JSON (no markdown, no explanation):
+{
+  "roleOverview": "2–3 sentences on day-to-day responsibilities and what success looks like",
+  "keyTopics": ["10–12 specific technical concepts or skills to master for this role"],
+  "technicalQuestions": [
+    {
+      "question": "Technical interview question",
+      "hint": "Key concepts, approach, and what interviewers are really assessing (2–3 sentences)",
+      "difficulty": "easy|medium|hard",
+      "category": "system design|coding|architecture|domain|debugging|language"
+    }
+  ],
+  "scenarioQuestions": [
+    {
+      "question": "Behavioral question (Tell me about a time... / How would you handle...)",
+      "starGuide": "STAR guidance: what Situation to highlight, what Action demonstrates the competency, what Result to emphasize",
+      "competency": "competency being tested e.g. ownership, leadership, technical judgment, communication"
+    }
+  ],
+  "companyQuestions": [
+    {
+      "question": "Company or role-fit question",
+      "tip": "Key research direction or framing advice"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Exact resource name",
+      "type": "documentation|course|book|video|practice|github|blog",
+      "url": "Exact URL you are highly confident exists — no made-up URLs",
+      "description": "Why this resource helps for this specific role",
+      "priority": "must-read|recommended|bonus"
+    }
+  ],
+  "studyPlan": {
+    "week1": "Week 1: foundational review and resource setup",
+    "week2": "Week 2: practice problems and deeper topic dives",
+    "week3": "Week 3: system design, behavioral prep, company research",
+    "dayBefore": "Day-before strategy: light review, mindset, logistics"
+  }
+}
+
+Generate:
+- 8–10 technical questions specific to the role, seniority, and job description keywords
+- 5–7 behavioral scenario questions targeting key competencies for this level
+- 3–5 company-fit questions tailored to this company
+- 8–10 resources with real, verifiable URLs (LeetCode, GitHub, Coursera, official docs, YouTube, etc.)`;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function llmJson(systemPrompt, userContent, model = 'gpt-4o-mini') {
@@ -160,6 +211,38 @@ export async function generateTailoredResume(resumeText, job) {
   }
 }
 
+// Called from PrepPlan page to generate a full interview preparation plan.
+export async function generatePrepPlan(job) {
+  const userContent = `Job Title: ${job.title}
+Company: ${job.company}
+Location: ${job.location || 'Not specified'}
+Salary: ${job.salary || 'Not specified'}
+Work Mode: ${job.workMode || 'Not specified'}
+Tags: ${job.tags?.join(', ') || ''}
+
+Job Description:
+${(job.description || 'No description provided').slice(0, 3000)}`;
+
+  if (!isLLMEnabled) return mockPrepPlan(job);
+
+  try {
+    const result = await llmJson(PREP_PLAN_PROMPT, userContent, 'gpt-4o');
+    const mock = mockPrepPlan(job);
+    return {
+      roleOverview: result.roleOverview || mock.roleOverview,
+      keyTopics: result.keyTopics?.length ? result.keyTopics : mock.keyTopics,
+      technicalQuestions: result.technicalQuestions?.length ? result.technicalQuestions : mock.technicalQuestions,
+      scenarioQuestions: result.scenarioQuestions?.length ? result.scenarioQuestions : mock.scenarioQuestions,
+      companyQuestions: result.companyQuestions?.length ? result.companyQuestions : mock.companyQuestions,
+      resources: result.resources?.length ? result.resources : mock.resources,
+      studyPlan: result.studyPlan?.week1 ? result.studyPlan : mock.studyPlan,
+    };
+  } catch (err) {
+    console.error('[LLM] Prep plan generation failed:', err.message);
+    return mockPrepPlan(job);
+  }
+}
+
 export function formatTailoredResumeAsText(tailored) {
   const { name, contact, summary, experience, skills, education, projects } = tailored;
 
@@ -192,6 +275,70 @@ function mockMatch(job) {
       job.gaps?.length ? `Address the "${job.gaps[0]}" gap with adjacent transferable experience` : 'Your profile is a strong match for this role',
       'Mirror the exact keywords from the job description to pass ATS screening',
     ],
+  };
+}
+
+function mockPrepPlan(job) {
+  const title = job.title ?? 'Software Engineer';
+  const company = job.company ?? 'the company';
+  const tags = job.tags ?? ['JavaScript', 'React'];
+  const isSenior = /senior|lead|staff|principal/i.test(title);
+
+  return {
+    roleOverview: `As a ${title} at ${company}, you will design, build, and maintain software systems that directly impact product and users. You will collaborate closely with product, design, and peer engineers to deliver features end-to-end. Success means writing clean, maintainable code, proactively identifying risks, and raising the bar for the entire team.`,
+    keyTopics: [
+      ...tags.slice(0, 4),
+      'Data Structures & Algorithms',
+      'System Design',
+      'REST APIs & HTTP',
+      isSenior ? 'Distributed Systems' : 'Design Patterns',
+      'Testing Strategies',
+      'Git & CI/CD',
+      isSenior ? 'Technical Leadership & Mentoring' : 'Agile / Scrum',
+      'Performance Optimization',
+    ],
+    technicalQuestions: [
+      { question: `How would you design a scalable ${tags[0] ?? 'web'} application serving 10M+ users?`, hint: 'Cover load balancing, horizontal scaling, caching layers (Redis/CDN), database sharding, and async queues. Discuss CAP theorem trade-offs and consistency vs. availability.', difficulty: 'hard', category: 'system design' },
+      { question: `What are the core performance pitfalls in ${tags[0] ?? 'modern web'} applications and how do you diagnose them?`, hint: 'Discuss profiling tools, N+1 queries, unnecessary re-renders (if frontend), memory leaks, blocking I/O. Show a systematic debug approach.', difficulty: 'medium', category: 'debugging' },
+      { question: 'Implement a function to find the longest substring without repeating characters.', hint: 'Sliding window with a hash set. O(n) time, O(min(n,m)) space. Walk through edge cases: empty string, all same chars, Unicode.', difficulty: 'medium', category: 'coding' },
+      { question: 'Design a rate limiter that allows 100 requests per minute per user.', hint: 'Compare token bucket vs. sliding window counter. Cover distributed state in Redis, clock skew, burst allowances, and client-facing headers.', difficulty: 'hard', category: 'system design' },
+      { question: 'How do you approach reviewing a pull request from a junior engineer?', hint: 'Correctness first, then readability, then performance. Discuss tone (ask questions vs. demand changes), nitpick labeling, and focusing on principles not style.', difficulty: 'easy', category: 'domain' },
+      { question: 'Explain the difference between optimistic and pessimistic locking. When would you use each?', hint: 'Optimistic: version check at commit (low contention). Pessimistic: lock before read (high contention). Discuss deadlock risks, retry logic, and distributed locking with Redis/ZooKeeper.', difficulty: 'medium', category: 'architecture' },
+      { question: 'Walk through how you write a comprehensive test suite for a new feature.', hint: 'Test pyramid: unit → integration → E2E. What to mock vs. keep real (external APIs vs. internal modules). CI gates, coverage thresholds, flaky test prevention.', difficulty: 'easy', category: 'domain' },
+      { question: 'How would you migrate a large relational database schema with zero downtime?', hint: 'Expand-contract pattern: add nullable column → backfill → add constraint → remove old column. Blue-green deploys, feature flags, rollback plan.', difficulty: 'hard', category: 'architecture' },
+      { question: `Describe how ${tags[0] ?? 'your main technology'} handles concurrency and what pitfalls to watch for.`, hint: 'Cover the event loop (if JS), thread model, race conditions, atomic operations, and language-specific primitives (promises, goroutines, async/await).', difficulty: 'medium', category: 'language' },
+    ],
+    scenarioQuestions: [
+      { question: 'Tell me about a time you had to deliver under significant time pressure. How did you manage?', starGuide: 'Situation: tight deadline + unclear scope. Action: scope negotiation, ruthless prioritization, daily standups, cut non-essentials. Result: shipped on time + planned follow-up iteration to address deferred work.', competency: 'execution under pressure' },
+      { question: 'Describe a situation where you disagreed with a technical decision. What did you do?', starGuide: 'Situation: decision you believed was suboptimal (perf, security, maintainability). Action: data-driven proposal, got buy-in from stakeholders, proposed a time-boxed experiment. Result: outcome and what you learned regardless of decision.', competency: 'technical judgment & influence' },
+      { question: 'Tell me about a time you identified and resolved a critical production incident.', starGuide: 'Situation: severity and user impact. Action: immediate triage, rollback decision, root cause analysis, hotfix. Result: time-to-resolution, post-mortem, and preventive measures you added.', competency: 'ownership & incident response' },
+      { question: 'How have you helped onboard or mentor a less experienced engineer?', starGuide: 'Situation: new team member gaps. Action: structured onboarding doc, pair programming sessions, code review mentoring, weekly 1:1s. Result: their ramp time vs. average + what you improved for the next hire.', competency: 'mentorship & communication' },
+      { question: 'Tell me about a project where requirements changed significantly mid-development.', starGuide: 'Situation: pivot or scope expansion. Action: impact assessment, stakeholder communication, re-scoping tradeoffs. Result: delivered adjusted scope + preserved relationship and trust.', competency: 'adaptability & stakeholder management' },
+      { question: 'Describe a time you proactively improved something that was not part of your assigned work.', starGuide: 'Situation: pain point you noticed (slow CI, flaky tests, missing docs). Action: small proposal + scoped PR. Result: time saved or quality improved, measured and communicated to the team.', competency: 'ownership & initiative' },
+    ],
+    companyQuestions: [
+      { question: `Why ${company} specifically — what excites you about this opportunity over others?`, tip: `Research ${company}'s recent product launches, engineering blog, and tech stack. Mention a specific technical decision or product feature that genuinely impressed you.` },
+      { question: 'Where do you see yourself in 3 years, and how does this role fit that path?', tip: `Align growth goals with the role's scope. Show you've thought about career ladders and what progression looks like at ${company}.` },
+      { question: 'What does your ideal engineering culture look like?', tip: `Research ${company}'s engineering values (check their blog/job posts). Touch on code review culture, deployment frequency, psychological safety, and how they handle incidents.` },
+      { question: 'What questions do you have for us about the team and the role?', tip: 'Prepare 4–5 questions: team size, on-call rotation, biggest current technical challenge, how priorities are set, what success looks like in the first 90 days.' },
+    ],
+    resources: [
+      { title: 'LeetCode — Algorithm Practice', type: 'practice', url: 'https://leetcode.com', description: 'Practice by topic and company tag. Start with "Top Interview 150" and focus on patterns over memorization.', priority: 'must-read' },
+      { title: 'System Design Primer', type: 'github', url: 'https://github.com/donnemartin/system-design-primer', description: 'Comprehensive GitHub guide covering scalability, databases, caching, load balancing, and microservices.', priority: 'must-read' },
+      { title: 'Tech Interview Handbook', type: 'blog', url: 'https://www.techinterviewhandbook.org', description: 'Free curated guide: algorithms cheat sheet, behavioral questions, resume tips, and offer negotiation.', priority: 'must-read' },
+      { title: 'NeetCode — Structured Problem Roadmap', type: 'video', url: 'https://neetcode.io', description: 'Roadmap of LeetCode problems organized by pattern with clear video explanations. Great for visual learners.', priority: 'must-read' },
+      { title: `Glassdoor — ${company} Interview Reports`, type: 'blog', url: `https://www.glassdoor.com/Interview/${company.replace(/\s+/g, '-')}-Interview-Questions-E.htm`, description: `Real interview experiences, difficulty ratings, and specific questions asked at ${company}.`, priority: 'must-read' },
+      { title: 'Grokking System Design Interview — Educative', type: 'course', url: 'https://www.educative.io/courses/grokking-the-system-design-interview', description: 'Structured system design prep with real examples: URL shortener, Twitter, Netflix, and Uber.', priority: 'recommended' },
+      { title: 'Cracking the Coding Interview — Gayle McDowell', type: 'book', url: 'https://www.amazon.com/Cracking-Coding-Interview-Programming-Questions/dp/0984782850', description: '189 interview problems with detailed solutions. Covers big-O, data structures, and common patterns.', priority: 'recommended' },
+      { title: 'Blind — Anonymous Tech Career Community', type: 'blog', url: 'https://www.teamblind.com', description: `Anonymous discussions about ${company} interview process, compensation ranges, and team culture insights.`, priority: 'recommended' },
+      { title: 'Big-O Cheat Sheet', type: 'blog', url: 'https://www.bigocheatsheet.com', description: 'Quick reference for time and space complexity of common algorithms and data structures.', priority: 'bonus' },
+    ],
+    studyPlan: {
+      week1: `Audit your fundamentals: review ${tags.slice(0, 2).join(' and ')} core concepts, complete 15–20 easy/medium LeetCode problems (arrays, strings, hash maps), and read 3–5 Glassdoor interview reports for ${company}.`,
+      week2: `Deep practice: solve 20+ medium problems (trees, graphs, dynamic programming). Run 2 full system design sessions (design Twitter, design a URL shortener). Review ${isSenior ? 'distributed systems patterns and technical leadership scenarios' : 'common design patterns and clean architecture principles'}.`,
+      week3: `Mock interviews: 2–3 timed coding sessions with a timer, rehearse all 6 behavioral STAR stories out loud, read ${company}'s engineering blog and recent press releases. Prepare 5 smart questions for your interviewers.`,
+      dayBefore: `Light review only — re-read your STAR stories and key topics list. Confirm logistics (time, format, interviewer names). Get 8 hours of sleep, eat well. Avoid grinding new problems. Arrive calm and early.`,
+    },
   };
 }
 
